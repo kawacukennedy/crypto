@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { WalletState } from '../../types';
 import { useCryptoToken } from '../../hooks/useCryptoToken';
+import { useCryptoGames } from '../../hooks/useCryptoGames';
 
 interface DiceGameProps {
   wallet: WalletState;
 }
 
 const DiceGame: React.FC<DiceGameProps> = ({ wallet }) => {
-  const { tokenInfo, transactionState, transfer } = useCryptoToken(wallet);
+  const { tokenInfo } = useCryptoToken(wallet);
+  const { transactionState, playDice } = useCryptoGames(wallet);
   const [betAmount, setBetAmount] = useState('');
   const [selectedNumber, setSelectedNumber] = useState<number>(1);
   const [isRolling, setIsRolling] = useState(false);
@@ -23,9 +25,6 @@ const DiceGame: React.FC<DiceGameProps> = ({ wallet }) => {
     return ethers.utils.formatUnits(amount, decimals);
   };
 
-  const rollDice = (): number => {
-    return Math.floor(Math.random() * 6) + 1;
-  };
 
   const handlePlay = async () => {
     if (!betAmount || !tokenInfo) return;
@@ -36,35 +35,23 @@ const DiceGame: React.FC<DiceGameProps> = ({ wallet }) => {
       return;
     }
 
-    setIsRolling(true);
-    setGameResult(null);
+    try {
+      setIsRolling(true);
+      setGameResult(null);
 
-    // Simulate dice roll with animation delay
-    setTimeout(() => {
-      const diceRoll = rollDice();
-      const playerWon = diceRoll === selectedNumber;
-      
-      let result: any = {
-        diceRoll,
-        playerWon
+      const res = await playDice(betAmountBN, selectedNumber);
+      const resultInfo: any = {
+        diceRoll: res.result,
+        playerWon: res.won,
+        winAmount: res.winAmount ? ethers.utils.formatUnits(res.winAmount, tokenInfo.decimals) : undefined
       };
 
-      if (playerWon) {
-        // Player wins 5x their bet
-        const winAmount = ethers.utils.parseUnits(betAmount, tokenInfo.decimals).mul(5);
-        result.winAmount = ethers.utils.formatUnits(winAmount, tokenInfo.decimals);
-        
-        // In a real implementation, you would mint tokens to the player
-        // For demo purposes, we'll just show the win
-        console.log(`Player won ${result.winAmount} tokens!`);
-      } else {
-        // In a real implementation, you would burn/transfer the bet amount
-        console.log(`Player lost ${betAmount} tokens`);
-      }
-
-      setGameResult(result);
+      setGameResult(resultInfo);
+    } catch (e) {
+      console.error(e);
+    } finally {
       setIsRolling(false);
-    }, 2000);
+    }
   };
 
   const resetGame = () => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { WalletState } from '../../types';
 import { useCryptoToken } from '../../hooks/useCryptoToken';
+import { useCryptoGames } from '../../hooks/useCryptoGames';
 
 interface CoinFlipGameProps {
   wallet: WalletState;
@@ -10,7 +11,8 @@ interface CoinFlipGameProps {
 type CoinSide = 'heads' | 'tails';
 
 const CoinFlipGame: React.FC<CoinFlipGameProps> = ({ wallet }) => {
-  const { tokenInfo, transactionState, transfer } = useCryptoToken(wallet);
+  const { tokenInfo } = useCryptoToken(wallet);
+  const { transactionState, playCoinFlip } = useCryptoGames(wallet);
   const [betAmount, setBetAmount] = useState('');
   const [selectedSide, setSelectedSide] = useState<CoinSide>('heads');
   const [isFlipping, setIsFlipping] = useState(false);
@@ -25,9 +27,6 @@ const CoinFlipGame: React.FC<CoinFlipGameProps> = ({ wallet }) => {
     return ethers.utils.formatUnits(amount, decimals);
   };
 
-  const flipCoin = (): CoinSide => {
-    return Math.random() < 0.5 ? 'heads' : 'tails';
-  };
 
   const handlePlay = async () => {
     if (!betAmount || !tokenInfo) return;
@@ -38,34 +37,27 @@ const CoinFlipGame: React.FC<CoinFlipGameProps> = ({ wallet }) => {
       return;
     }
 
-    setIsFlipping(true);
-    setGameResult(null);
+    try {
+      setIsFlipping(true);
+      setGameResult(null);
 
-    // Simulate coin flip with animation delay
-    setTimeout(() => {
-      const coinResult = flipCoin();
-      const playerWon = coinResult === selectedSide;
+      // Convert selectedSide to number: heads=0, tails=1
+      const prediction = selectedSide === 'heads' ? 0 : 1;
+      const res = await playCoinFlip(betAmountBN, prediction);
       
-      let result: any = {
-        coinResult,
-        playerWon
+      const resultSide: CoinSide = res.result === 0 ? 'heads' : 'tails';
+      const resultInfo: any = {
+        coinResult: resultSide,
+        playerWon: res.won,
+        winAmount: res.winAmount ? ethers.utils.formatUnits(res.winAmount, tokenInfo.decimals) : undefined
       };
 
-      if (playerWon) {
-        // Player wins 2x their bet
-        const winAmount = ethers.utils.parseUnits(betAmount, tokenInfo.decimals).mul(2);
-        result.winAmount = ethers.utils.formatUnits(winAmount, tokenInfo.decimals);
-        
-        // In a real implementation, you would mint tokens to the player
-        console.log(`Player won ${result.winAmount} tokens!`);
-      } else {
-        // In a real implementation, you would burn/transfer the bet amount
-        console.log(`Player lost ${betAmount} tokens`);
-      }
-
-      setGameResult(result);
+      setGameResult(resultInfo);
+    } catch (e) {
+      console.error(e);
+    } finally {
       setIsFlipping(false);
-    }, 2500);
+    }
   };
 
   const resetGame = () => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { WalletState } from '../../types';
 import { useCryptoToken } from '../../hooks/useCryptoToken';
+import { useCryptoGames } from '../../hooks/useCryptoGames';
 
 interface RouletteGameProps {
   wallet: WalletState;
@@ -11,7 +12,8 @@ type BetType = 'number' | 'red' | 'black' | 'even' | 'odd';
 type RouletteNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36;
 
 const RouletteGame: React.FC<RouletteGameProps> = ({ wallet }) => {
-  const { tokenInfo, transactionState, transfer } = useCryptoToken(wallet);
+  const { tokenInfo } = useCryptoToken(wallet);
+  const { transactionState, playRoulette } = useCryptoGames(wallet);
   const [betAmount, setBetAmount] = useState('');
   const [betType, setBetType] = useState<BetType>('red');
   const [selectedNumber, setSelectedNumber] = useState<RouletteNumber>(1);
@@ -25,7 +27,6 @@ const RouletteGame: React.FC<RouletteGameProps> = ({ wallet }) => {
 
   // Roulette number colors (simplified European roulette)
   const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-  const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
 
   const formatTokenAmount = (amount: ethers.BigNumber | undefined, decimals: number) => {
     if (!amount) return '0';
@@ -38,28 +39,6 @@ const RouletteGame: React.FC<RouletteGameProps> = ({ wallet }) => {
     return 'black';
   };
 
-  const spinRoulette = (): RouletteNumber => {
-    return Math.floor(Math.random() * 37) as RouletteNumber;
-  };
-
-  const calculateWin = (result: RouletteNumber, betType: BetType, selectedNumber: RouletteNumber): { won: boolean; multiplier: number } => {
-    const color = getNumberColor(result);
-    
-    switch (betType) {
-      case 'number':
-        return { won: result === selectedNumber, multiplier: 35 }; // 35:1 payout
-      case 'red':
-        return { won: color === 'red', multiplier: 1 }; // 1:1 payout
-      case 'black':
-        return { won: color === 'black', multiplier: 1 }; // 1:1 payout
-      case 'even':
-        return { won: result !== 0 && result % 2 === 0, multiplier: 1 }; // 1:1 payout
-      case 'odd':
-        return { won: result !== 0 && result % 2 === 1, multiplier: 1 }; // 1:1 payout
-      default:
-        return { won: false, multiplier: 0 };
-    }
-  };
 
   const handlePlay = async () => {
     if (!betAmount || !tokenInfo) return;
@@ -70,34 +49,33 @@ const RouletteGame: React.FC<RouletteGameProps> = ({ wallet }) => {
       return;
     }
 
-    setIsSpinning(true);
-    setGameResult(null);
+    try {
+      setIsSpinning(true);
+      setGameResult(null);
 
-    // Simulate roulette spin with animation delay
-    setTimeout(() => {
-      const number = spinRoulette();
-      const color = getNumberColor(number);
-      const { won, multiplier } = calculateWin(number, betType, selectedNumber);
+      // Map betType to contract format: 0=number, 1=red, 2=black, 3=even, 4=odd
+      let contractBetType = 0;
+      if (betType === 'red') contractBetType = 1;
+      else if (betType === 'black') contractBetType = 2;
+      else if (betType === 'even') contractBetType = 3;
+      else if (betType === 'odd') contractBetType = 4;
+
+      const res = await playRoulette(betAmountBN, contractBetType, selectedNumber);
       
-      let result: any = {
-        number,
+      const color = getNumberColor(res.result as RouletteNumber);
+      const resultInfo: any = {
+        number: res.result,
         color,
-        playerWon: won
+        playerWon: res.won,
+        winAmount: res.winAmount ? ethers.utils.formatUnits(res.winAmount, tokenInfo.decimals) : undefined
       };
 
-      if (won) {
-        // Player wins based on bet type
-        const winAmount = ethers.utils.parseUnits(betAmount, tokenInfo.decimals).mul(multiplier + 1);
-        result.winAmount = ethers.utils.formatUnits(winAmount, tokenInfo.decimals);
-        
-        console.log(`Player won ${result.winAmount} tokens!`);
-      } else {
-        console.log(`Player lost ${betAmount} tokens`);
-      }
-
-      setGameResult(result);
+      setGameResult(resultInfo);
+    } catch (e) {
+      console.error(e);
+    } finally {
       setIsSpinning(false);
-    }, 3000);
+    }
   };
 
   const resetGame = () => {
