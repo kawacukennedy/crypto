@@ -2,14 +2,11 @@ import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthPage from './pages/AuthPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import TokenDashboard from './components/TokenDashboard';
-import WalletConnection from './components/WalletConnection';
-import { useWallet } from './hooks/useWallet';
+import MainDashboard from './components/MainDashboard';
 import './App.css';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { wallet, isLoading, error, isMetaMaskInstalled, connectWallet, disconnectWallet } = useWallet();
 
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -25,9 +22,11 @@ const AppContent: React.FC = () => {
           </div>
           <div className="header-right">
             <div className="user-info">
-              <span className="user-wallet">
-                🔗 {user?.walletAddress?.slice(0, 6)}...{user?.walletAddress?.slice(-4)}
-              </span>
+              {user?.walletAddress && (
+                <span className="user-wallet">
+                  🔗 {user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}
+                </span>
+              )}
               <button className="logout-btn" onClick={logout}>
                 Logout
               </button>
@@ -37,31 +36,7 @@ const AppContent: React.FC = () => {
       </header>
       
       <main className="App-main">
-        {!isMetaMaskInstalled ? (
-          <div className="metamask-warning">
-            <h2>MetaMask Required</h2>
-            <p>Please install MetaMask to use this application.</p>
-            <a 
-              href="https://metamask.io/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="install-metamask-btn"
-            >
-              Install MetaMask
-            </a>
-          </div>
-        ) : !wallet.isConnected ? (
-          <WalletConnection
-            onConnect={connectWallet}
-            isLoading={isLoading}
-            error={error}
-          />
-        ) : (
-          <TokenDashboard
-            wallet={wallet}
-            onDisconnect={disconnectWallet}
-          />
-        )}
+        <MainDashboard />
       </main>
       
       <footer className="App-footer">
