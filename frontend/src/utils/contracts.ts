@@ -529,7 +529,7 @@ export const CRYPTO_TOKEN_ABI = [
 
 // Contract addresses for different networks
 export const CONTRACT_ADDRESSES: { [key: number]: string } = {
-  31337: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Hardhat local - will be updated after deployment
+  31337: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', // Hardhat local - will be updated after deployment
   11155111: '', // Sepolia testnet
   1: '', // Ethereum mainnet
   5: '' // Goerli testnet (deprecated)
@@ -859,7 +859,7 @@ export const CRYPTO_GAMES_ABI = [
 
 // Games contract addresses for different networks
 export const GAMES_CONTRACT_ADDRESSES: { [key: number]: string } = {
-  31337: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0', // Hardhat local
+  31337: '0x0165878A594ca255338adfa4d48449f69242Eb8F', // Hardhat local
   11155111: '', // Sepolia testnet
   1: '', // Ethereum mainnet
   5: '' // Goerli testnet (deprecated)
