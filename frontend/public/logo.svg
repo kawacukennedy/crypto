@@ -1,0 +1,38 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle with gradient -->
+  <circle cx="24" cy="24" r="22" fill="url(#grad1)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+  
+  <!-- Dice icon -->
+  <rect x="12" y="12" width="10" height="10" rx="2" fill="url(#grad2)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+  <circle cx="14.5" cy="14.5" r="1" fill="rgba(102,126,234,0.8)"/>
+  <circle cx="19.5" cy="19.5" r="1" fill="rgba(102,126,234,0.8)"/>
+  
+  <!-- Coin flip icon -->
+  <circle cx="30" cy="17" r="5" fill="url(#grad2)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+  <text x="30" y="21" text-anchor="middle" font-size="6" fill="rgba(102,126,234,0.8)" font-weight="bold">₿</text>
+  
+  <!-- Roulette wheel -->
+  <circle cx="18" cy="32" r="5" fill="url(#grad2)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+  <circle cx="18" cy="32" r="3" fill="none" stroke="rgba(102,126,234,0.6)" stroke-width="0.5"/>
+  <circle cx="18" cy="32" r="1" fill="rgba(102,126,234,0.8)"/>
+  
+  <!-- Diamond accent -->
+  <path d="M32 28 L35 31 L32 34 L29 31 Z" fill="url(#grad2)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+  
+  <!-- Sparkle effects -->
+  <circle cx="38" cy="10" r="1.5" fill="rgba(255,255,255,0.8)"/>
+  <circle cx="10" cy="38" r="1" fill="rgba(255,255,255,0.6)"/>
+  <circle cx="40" cy="35" r="1" fill="rgba(255,255,255,0.7)"/>
+</svg>

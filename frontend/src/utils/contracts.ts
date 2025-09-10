@@ -529,7 +529,7 @@ export const CRYPTO_TOKEN_ABI = [
 
 // Contract addresses for different networks
 export const CONTRACT_ADDRESSES: { [key: number]: string } = {
-  31337: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512', // Hardhat local - will be updated after deployment
+  31337: '0x5FbDB2315678afecb367f032d93F642f64180aa3', // Hardhat local - will be updated after deployment
   11155111: '', // Sepolia testnet
   1: '', // Ethereum mainnet
   5: '' // Goerli testnet (deprecated)

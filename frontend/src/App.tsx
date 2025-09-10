@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthPage from './pages/AuthPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import MainDashboard from './components/MainDashboard';
+import { SolanaWalletProvider } from './contexts/SolanaWalletContext';
 import './App.css';
 
 const AppContent: React.FC = () => {
@@ -17,7 +18,10 @@ const AppContent: React.FC = () => {
       <header className="App-header">
         <div className="header-content">
           <div className="header-left">
-            <h1>CryptoToken DApp</h1>
+            <div className="brand">
+              <img src="/logo.svg" alt="LuxeGamble" className="brand-logo" />
+              <h1>LuxeGamble</h1>
+            </div>
             <p>Welcome back, {user?.email}</p>
           </div>
           <div className="header-right">
@@ -49,9 +53,11 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <ProtectedRoute fallback={<AuthPage />}>
-        <AppContent />
-      </ProtectedRoute>
+      <SolanaWalletProvider>
+        <ProtectedRoute fallback={<AuthPage />}>
+          <AppContent />
+        </ProtectedRoute>
+      </SolanaWalletProvider>
     </AuthProvider>
   );
 }

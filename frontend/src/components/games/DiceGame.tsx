@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { WalletState } from '../../types';
 import { useCryptoToken } from '../../hooks/useCryptoToken';
 import { useCryptoGames } from '../../hooks/useCryptoGames';
+import TransactionStatus from '../common/TransactionStatus';
 
 interface DiceGameProps {
   wallet: WalletState;
@@ -10,7 +11,7 @@ interface DiceGameProps {
 
 const DiceGame: React.FC<DiceGameProps> = ({ wallet }) => {
   const { tokenInfo } = useCryptoToken(wallet);
-  const { transactionState, playDice } = useCryptoGames(wallet);
+  const { transactionState, playDice, clearTransactionState } = useCryptoGames(wallet);
   const [betAmount, setBetAmount] = useState('');
   const [selectedNumber, setSelectedNumber] = useState<number>(1);
   const [isRolling, setIsRolling] = useState(false);
@@ -80,6 +81,11 @@ const DiceGame: React.FC<DiceGameProps> = ({ wallet }) => {
           <span>{formatTokenAmount(tokenInfo.balance, tokenInfo.decimals)} {tokenInfo.symbol}</span>
         </div>
       </div>
+
+      <TransactionStatus 
+        transactionState={transactionState} 
+        onClear={clearTransactionState} 
+      />
 
       {!gameResult && (
         <div className="game-controls">
